@@ -1,3 +1,7 @@
+CREATE DATABASE `jamazon`;
+
+USE `jamazon`;
+
 # Table, Create Table
 CREATE TABLE `products` (
   `item_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -6,7 +10,7 @@ CREATE TABLE `products` (
   `price` decimal(10,2) NOT NULL,
   `stock_quantity` int(11) NOT NULL,
   PRIMARY KEY (`item_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 # Insert placeholder products
 INSERT INTO `products` VALUES
