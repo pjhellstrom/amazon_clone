@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
+var table = require('table');
 var converter = require('number-to-words');
 var chalk = require('chalk');
 
@@ -48,8 +49,8 @@ function listProducts() {
     // create empty array to hold products in stock
     const products = [];
         // add products to products array
-        for ( let i = 0; i < res.length; i++ ) {
-            products.push(res[i].product_name);
+        for ( let product of res ) {
+            products.push(product.product_name);
         }
 
         // prompt user to select from products array and input quantity
@@ -71,18 +72,18 @@ function listProducts() {
             // Pull availability of selection
             let availability = 0;
 
-            for ( let i = 0; i < res.length; i++ ) {
-                if (res[i].product_name == answer.order_selection) {
-                    availability = res[i].stock_quantity;
+            for ( let product of res ) {
+                if (product.product_name == answer.order_selection) {
+                    availability = product.stock_quantity;
                 }
             }
 
             // Pull price of selection
             let price = 0;
 
-            for ( let i = 0; i < res.length; i++ ) {
-                if (res[i].product_name == answer.order_selection) {
-                    price = res[i].price;
+            for ( let product of res ) {
+                if (product.product_name == answer.order_selection) {
+                    price = product.price;
                 }
             }
 
@@ -101,7 +102,7 @@ function listProducts() {
                     // if customer confirms order
                     if (confirmation.order_confirmation === "Add") {
                         // update DB
-                        let update_db = `UPDATE products SET stock_quantity = ${availability - answer.order_quantity} WHERE product_name = "${answer.order_selection}"`;
+                        let update_db = `UPDATE products SET stock_quantity = ${availability - parseInt(answer.order_quantity)} WHERE product_name = "${answer.order_selection}"`;
                         connection.query(update_db, function(err, res) {
                             // log errors
                             if(err) {
