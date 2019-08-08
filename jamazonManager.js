@@ -1,6 +1,6 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
-var table = require('table');
+const {table} = require('table');
 var converter = require('number-to-words');
 var chalk = require('chalk');
 
@@ -27,16 +27,12 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
     welcome();
-    setTimeout(listActions, 1000);
+    listActions();
 });
 
 //Function declarations
 function welcome() {
-    log(chalk.green.bold(
-`\n-----------------------------------
-WELCOME TO JAMAZON MANAGER VIEW!
------------------------------------
-`))
+    log(chalk.bgKeyword('orange').black.bold(`\n----------------------------------------------------\n Welcome to Jamazon Manager View!                   \n----------------------------------------------------\n`))
 };
 
 function listActions() {
@@ -73,9 +69,7 @@ function listActions() {
                     if(err) {log(err)};
                     // return if no items match criteria
                     if (res.length == 0) {
-                        log(`\n-----------------------------------
-No items with inventory below ${low_inventory_threshold} to display
------------------------------------\n`);
+                        log(`\n-----------------------------------\nNo items with inventory below ${low_inventory_threshold} to display\n-----------------------------------\n`);
                         return;
                     }
                     // Output list of products
@@ -141,7 +135,7 @@ No items with inventory below ${low_inventory_threshold} to display
             }
             else if (resp.selection === "Add New Product") {
                 // pull current list of all departments 
-                let query = "SELECT DISTINCT department_name FROM products"
+                let query = "SELECT department_name FROM departments"
                 connection.query(query, function(err, res) {
                     // log errors
                     if(err) {
@@ -178,17 +172,14 @@ No items with inventory below ${low_inventory_threshold} to display
                     },
                 ])
                 .then(function(input){
-                    // check if product already exists in stock
-                    // CODE HERE ***
-
                     // Push to DB
-                    let push_db = `INSERT INTO products VALUES (0,"${input.new_product.trim()}","${input.new_department}", ${input.new_price.trim()}, ${input.new_quantity.trim()})`;
+                    let push_db = `INSERT INTO products VALUES (0,"${input.new_product.trim()}","${input.new_department}", ${input.new_price.trim()}, ${input.new_quantity.trim()},0)`;
                     connection.query(push_db, function(err, res) {
                         // log errors
                         if(err) {
                             log(err);
                         }
-                    log(`${input.new_quantity} ${input.new_product} have been added to the ${input.new_department} category at a price of ${input.new_price}.`);
+                    log(`${input.new_quantity} units of ${input.new_product} have been added to the ${input.new_department} category at a price of $${input.new_price} per unit.`);
                     });
                 });// end call back
                 // listActions();
