@@ -8,7 +8,7 @@ var chalk = require('chalk');
 // var keys = require("./keys.js");
 
 const log = console.log;
-let low_inventory_threshold = 5;
+let low_inventory_threshold = 50;
 
 // View Products for Sale
 // View Low Inventory
@@ -32,7 +32,7 @@ connection.connect(function(err) {
 
 //Function declarations
 function welcome() {
-    log(chalk.bgKeyword('orange').black.bold(`\n----------------------------------------------------\n Welcome to Jamazon Manager View!                   \n----------------------------------------------------\n`))
+    log(chalk.bgKeyword('orange').black.bold(`\n--------------------------------------------------------------------\n Welcome to Jamazon Manager View!                                   \n--------------------------------------------------------------------\n`))
 };
 
 function listActions() {
@@ -49,36 +49,65 @@ function listActions() {
         .then(function(resp){
             if (resp.selection === "View Products for Sale") {
                 // Read current list of products in stock
-                let query = "SELECT product_name, department_name, price, stock_quantity FROM products WHERE stock_quantity > 0";
+                let query = "SELECT item_id, product_name, department_name, price, stock_quantity FROM products WHERE stock_quantity > 0";
                 connection.query(query, function(err, res) {
                     // log errors
-                    if(err) {log(err)};
-                    // Output list of products
-                    log(`This is the current inventory:\n`)
+                    if(err) {
+                        log(err)
+                        setTimeout(listActions, 0);
+                    };
+
+                    // construct table for all available products - table npm uses arrays for each row contained w/i an outer array
+                    const inventory_table = [
+                        ['Product ID', 'Product Name', 'Department', 'Price', 'Stock']
+                    ];
+
                     for ( let product of res ) {
-                        log(`ID: ${product.item_id}, Product: ${product.product_name}, Dept.: ${product.department_name}, Price: ${product.price}, Stock: ${product.stock_quantity}\n`);
+                        let inv_row = [];
+                        inv_row.push(product.item_id);
+                        inv_row.push(product.product_name);
+                        inv_row.push(product.department_name);
+                        inv_row.push(product.price);
+                        inv_row.push(product.stock_quantity);
+                        inventory_table.push(inv_row);
                     }
+                    log(chalk.bgKeyword('orange').black.bold(`\n--------------------------------------------------------------------\n These are the products available on the store front:               \n--------------------------------------------------------------------\n`))
+                    log(table(inventory_table));
                 });// end connection
-                // listActions();
+                setTimeout(listActions, 0);
             }
             else if (resp.selection === "View Low Inventory") {
                 // Read current list of products in stock
                 let query = `SELECT product_name, department_name, price, stock_quantity FROM products WHERE stock_quantity < ${low_inventory_threshold} `;
                 connection.query(query, function(err, res) {
                     // log errors
-                    if(err) {log(err)};
+                    if(err) {
+                        log(err)
+                        setTimeout(listActions, 0);
+                    };
                     // return if no items match criteria
                     if (res.length == 0) {
-                        log(`\n-----------------------------------\nNo items with inventory below ${low_inventory_threshold} to display\n-----------------------------------\n`);
-                        return;
+                        log(`\n-------------------------------------------\nNo items with inventory below ${low_inventory_threshold} to display\n-------------------------------------------\n`);
+                        setTimeout(listActions, 0);
                     }
                     // Output list of products
-                    log(`These are the inventory products that are running out of stock:\n`);
+                    // construct table for all available products - table npm uses arrays for each row contained w/i an outer array
+                    const inventory_table = [
+                        ['Product Name', 'Department', 'Price', 'Stock']
+                    ];
+
                     for ( let product of res ) {
-                        log(`ID: ${product.item_id}, Product: ${product.product_name}, Dept.: ${product.department_name}, Price: ${product.product_name}, Stock: ${product.stock_quantity}\n`);
+                        let inv_row = [];
+                        inv_row.push(product.product_name);
+                        inv_row.push(product.department_name);
+                        inv_row.push(product.price);
+                        inv_row.push(product.stock_quantity);
+                        inventory_table.push(inv_row);
                     }
+                    log(chalk.bgKeyword('orange').black.bold(`\n--------------------------------------------------------------------\n These are the products with stock below ${low_inventory_threshold} units:                  \n--------------------------------------------------------------------\n`))
+                    log(table(inventory_table));
+                    setTimeout(listActions, 0);
                 });// end connection
-                // listActions();
             }
             else if (resp.selection === "Add to Inventory") {
                 // pull current list of all products 
@@ -116,7 +145,6 @@ function listActions() {
                             if (product.product_name == input.restock_selection) {
                                 availability = product.stock_quantity;
                             }
-                            log(`typeof availability: ${typeof(availability)}`)
                         }
                         
                         // Push to DB
@@ -125,13 +153,21 @@ function listActions() {
                             // log errors
                             if(err) {
                                 log(err);
-                            }
-                        log(`${input.restock_selection} has been restocked to ${availability + parseInt(input.restock_quantity)} units (prev. ${availability} units).`);
+                            };
+
+                            // construct and log table with details on restocked inventory
+                            const restock_table = 
+                            [
+                                ['Product Name', 'New Stock', 'Prev. Stock'],
+                                [`${input.restock_selection}`, `${availability + parseInt(input.restock_quantity)}`, `${availability}`]
+                            ];
+                            log(chalk.bgKeyword('orange').black.bold(`\n--------------------------------------------------------------------\n This product has been restocked:                                   \n--------------------------------------------------------------------\n`));
+                            log(table(restock_table));
+
+                            setTimeout(listActions, 0);
                         });
                     });// end call back
                 });// end connection
-
-                // listActions();
             }
             else if (resp.selection === "Add New Product") {
                 // pull current list of all departments 
@@ -140,6 +176,7 @@ function listActions() {
                     // log errors
                     if(err) {
                         log(err);
+                        setTimeout(listActions, 0);
                     }
                     // create empty array to hold departments
                     const departments = [];
@@ -178,11 +215,22 @@ function listActions() {
                         // log errors
                         if(err) {
                             log(err);
+                            setTimeout(listActions, 0);
                         }
-                    log(`${input.new_quantity} units of ${input.new_product} have been added to the ${input.new_department} category at a price of $${input.new_price} per unit.`);
+                        
+
+                        log(chalk.bgKeyword('orange').black.bold(`\n--------------------------------------------------------------------\n This product has been added to the storefront:                     \n--------------------------------------------------------------------\n`));
+                        // construct and log table with details on new product
+                        const new_prod_table = [
+                            ['Product Name', 'Department', 'Price', 'Stock'],
+                            [`${input.new_product}`,`${input.new_department}`,`${input.new_price}`,`${input.new_quantity}`]
+                        ];
+                        log(table(new_prod_table));
+                        setTimeout(listActions, 0);
                     });
                 });// end call back
-                // listActions();
+
+
             });// end outer connection
             }
             else if (resp.selection === "Exit") {

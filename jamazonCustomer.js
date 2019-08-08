@@ -113,7 +113,7 @@ function listProducts() {
                     {
                         type: "list",
                         message: `Ok to proceed with order of ${converter.toWords(answer.order_quantity)} ${answer.order_selection}(s)?\n`,
-                        choices: ["Checkout", "Cancel"],
+                        choices: ["Checkout", "Look for something else", "Exit"],
                         name: "order_confirmation"
                     }
                 ])
@@ -141,45 +141,34 @@ function listProducts() {
                         // update customer total balance
                         customer_balance += (answer.order_quantity * price);
                         // log order confirmation
-                        log(chalk.bgKeyword('orange')(`\n-----------------------------------------------------\nYour order is on it's way! You'll be charged $${customer_balance}.\n-----------------------------------------------------\n`))
-
-                        // // update item and quantity arrays
-                        // customer_items.push(answer.order_selection);
-                        // items_quantity.push(answer.order_quantity);
-
-                        // // clear out string to avoid double counting
-                        // shopping_cart = "";
-
-                        // // add items to shopping_cart
-                        // for (let i = 0; i < customer_items.length; i++) {
-                        //     shopping_cart = shopping_cart.concat(customer_items[i], ' (', items_quantity[i], ') \n')
-                        // }
-                        // log(shopping_cart);
-
-                        // // prompt for more selections or checkout
-                        // inquirer.prompt([
-                        //     {
-                        //         type: "list",
-                        //         message: `Your shopping cart contains:\n${shopping_cart}\nBalance due: $${customer_balance}\nWould you like to add more items?\n`,
-                        //         choices: ["Keep browsing", "Check out"],
-                        //         name: "stay_check"
-                        //     }
-                        // ])
-                        // .then(function(stay){
-                        //     if (stay.stay_check === "Keep browsing") {
-                        //         listProducts();
-                        //     }
-                        //     else if (stay.stay_check === "Check out") {
-                        //         log(`Your order is on it's way! You'll be charged $${customer_balance}.`);
-                        //         shopping_cart = "";
-                        //         customer_balance = 0;
-                        //         return;
-                        //     }
-                        // });
+                        log(chalk.keyword('orange')(`\n-----------------------------------------------------\nYour order is on it's way! You'll be charged $${customer_balance}. \n-----------------------------------------------------\n`));
+                        
+                        // prompt for more selections or checkout
+                        inquirer.prompt([
+                            {
+                                type: "list",
+                                message: `Do you want to keep shopping?\n`,
+                                choices: ["Keep browsing", "Exit"],
+                                name: "stay_check"
+                            }
+                        ])
+                        .then(function(stay){
+                            if (stay.stay_check === "Keep browsing") {
+                                listProducts();
+                            }
+                            else if (stay.stay_check === "Exit") {
+                                log(chalk.keyword('orange')(`\n-----------------------------------------------------\nThank you for shopping with Jamazon!\n-----------------------------------------------------\n`));
+                                setTimeout(process.exit(), 1000);
+                            }
+                        });
                     }
-                    // if customer cancels
-                    else if (confirmation.order_confirmation === "Cancel") {
+                    // if customer chooses to look for other products
+                    else if (confirmation.order_confirmation === "Look for something else") {
                         listProducts();
+                    }
+                    else if (confirmation.order_confirmation === "Exit") {
+                        log(chalk.keyword('orange')(`\n-----------------------------------------------------\nThank you for shopping with Jamazon!\n-----------------------------------------------------\n`));
+                        setTimeout(process.exit(), 1000);
                     }
                 });
             // if order quantity is not available
