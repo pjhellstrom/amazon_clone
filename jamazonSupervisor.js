@@ -81,7 +81,8 @@ function listActions() {
                     }
                 
                     log(table(sales_table));
-                    
+
+                    setTimeout(listActions, 0);
                 });// end connection
             }// end if
             else if (resp.selection === "Create New Department") {
@@ -109,6 +110,7 @@ function listActions() {
                             log(err);
                         }
                     log(`The ${input.new_department} department has been added to the database.`);
+                    setTimeout(listActions, 0);
                     });
                 });// end call back
             }// end else if
