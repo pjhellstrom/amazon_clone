@@ -28,11 +28,7 @@ Download repo into a new directory and use schema and seed files to create the n
 
 ```console
 # Install dependencies
-npm i mysql
-npm i inquirer
-npm i table
-npm i number-to-words
-npm i chalk
+npm i
 ```
 Next, you can run any of the three jamazon js files. For example, to run the customer view:
 
